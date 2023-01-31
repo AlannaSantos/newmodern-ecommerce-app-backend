@@ -91,7 +91,6 @@ const productSchema = mongoose.Schema({
         type: Boolean,
         default: false
     },
-    // Numero de avaliações: não é obrigatório. Se der tempo, implementarei isso
     date_created: {
         type: Date,
         default: Date.now
