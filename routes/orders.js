@@ -291,7 +291,7 @@ router.get(`/get/count`, async (req, res) => {
 
 // GET histórico de pedidos usuário - requisito funcional: histórico pedidos
 router.get(`/get/userorders/:userid`, async (req, res) => {
-    const userOrderList = await Order.find({ user: req.params.userId }).populate({
+    const userOrderList = await Order.find({ user: req.params.userid }).populate({
         path: 'orderItems', populate: {
             path: 'product', populate: 'category'
         }
