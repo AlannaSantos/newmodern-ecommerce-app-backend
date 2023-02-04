@@ -114,6 +114,7 @@ router.post('/', async (req, res) => {
         let newOrderItem = new OrderItem({
             quantity: order_item.quantity,
             product: order_item.product // item-pedido relaciona-se com produto, ou seja,  possui id produto como fk
+            
         })
 
         // Salvar os dados no BD
@@ -290,7 +291,7 @@ router.get(`/get/count`, async (req, res) => {
 
 // GET histórico de pedidos usuário - requisito funcional: histórico pedidos
 router.get(`/get/userorders/:userid`, async (req, res) => {
-    const userOrderList = await Order.find({ user: req.params.userid }).populate({
+    const userOrderList = await Order.find({ user: req.params.userId }).populate({
         path: 'orderItems', populate: {
             path: 'product', populate: 'category'
         }
