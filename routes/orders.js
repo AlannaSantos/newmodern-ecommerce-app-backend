@@ -121,7 +121,7 @@ router.post('/', async (req, res) => {
         newOrderItem = await newOrderItem.save();
 
         // Retorna o Id do item-pedido (returns objectId).Ou seja, retorna apenas os Ids em array
-        return newOrderItem.id;
+        return newOrderItem._id;
     }))
     const orderItemsIdsResolved = await orderItemsIds;
 
