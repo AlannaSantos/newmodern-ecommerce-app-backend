@@ -28,83 +28,6 @@ router.get(`/:id`, async (req, res) => {
     res.send(order);
 })
 
-/**
- *  POST METHOD ORDER:
- * 
- *   Verificar pq não estou recebendo itens-pedido...
- * 
- *   DEBUG console.log(orderItems): [ Promise { <pending> }, Promise { <pending> } ]
- *   Ou seja, não está retornando o objectId, mas sim, as promises, do async method vazias
- *
- *   Portanto, para resolver isso, é necessário combinar essas 'promises'
- *
- *   RESULTADO: Promise.all(req.body.order_items.map(async order_item... 
- *   que faz um loop(.map) em itens pedidos e pega os fk_IDs referenciadas (objectIds)
- *   assim foi possível resolver UMA  'promise'.
- *   
- *
- *   Para resolver a segunda 'promise' e retornar o array items-pedido em pedido
- *   tive que criar uma nova constante chamada orderItemsIdsResolved
- *
- *   SOLUÇÃO: a primeira 'promise' orderItemsIds é retornada normalmente no método async/awaits.
- *   Para retornar a segunda 'promise', criei uma nova constante chamada: orderItemsIdsResolved.
- *   essa constante é a segunda 'promise' e ela 'awaits': ou seja, espera pela a primeira 'promise,:orderItemsIds 
- *   
- * ----------------------------------------------------------------------------------------------------------------
- *  SEGURANÇA: VALOR TOTAL DO PEDIDO.
- * 
- *  Enviar o valor total do pedido não é uma boa prática. OBVIAMENTE! 
- *  Por exemplo, é possível que um 'hacker' mude o valor total do pedido com um valor total falso
- *  Ou seja, é possível que o 'hacker' altere o valor de uma compra de R$ 2.000,00 para R$ 2,00.
- *  
- *  No mundo real, se a sua loja estiver muito movimentada, esse valor falso pode passar despercebido
- *  
- *  PORTANTO, depois que o usuário manda os dados dos itens pedidos no back-end, calcula-se o valor total
- *  dos itens pedidos baseado no valor que temos no banco de dados. 
- * 
- *  LÓGICA VALOR TOTAL ITENS-PEDIDOS:
- *  efetuar um 'loop' em itens_pedidos recebido do usuário no front-end e resolver o calculo: (multi e soma básica)
- *  
- *  valor_produto * quantidade_carrinho = valor_total_item_pedido1
- *  valor_total_compra = valor_total_item_pedido1 + valor_total_item_pedido(n)...
- *  
- * 
- *  OU seja, acessa-se a Model/Schema produto, que está relacionada com itens_pedidos (cardinalidade de muitos para um)
- *  e realiza-se o calculo básico mencionado nas linhas 67 e 68 com os dados valor produto cadastrado previamente
- *  pelo o mantenedor.
- *  
- *  IMPLEMENTAÇÃO VALOR TOTAL ITENS_PEDIDOS
- *  
- *  troquei total_price: .req.body.total_price, por uma variável chamada totalPrice
- *  
- *  A variável totalPrice, vem da totalPrices (const TotalPrices). que é o array com todos os valores de itens_pedidos
- *  
- *  Nessa constante, chama-se a var Promise que pega todas as OrderItemsResolvedIds (items_pedidos dentro de pedidos)
- *  e efetua um loop neles (map). Esse 'loop' tem a finalidade de pegar e salvar o Id do item_pedido guardado no BD.
- * 
- *  Portanto, utlizando async and await para o order_item, é possível, então, 'pegar' ou achar o ID de item_pedido
- *  após o loop inicial (.map)
- * 
- *  APÒS isso, busca-se, dentro de item_pedido, o id, quantidade e valor do produto relacionado àquele item_pedido
- * (.populate (product, total_price))...
- * 
- *  ENTÃO: criei uma nova constante 'totalPrice' para realizar a lógica valor total pedido e passei essa variável
- *  com os dados salvos, no body de:
- *  let Order = new Order({
- *              ...
- *              total_price: totalPrice   
- *              })
- * 
- *  RESSALTA-SE QUE UTILIZEI UM MÉTODO FAMOSO PARA COMBINAR OS VALORES DOS ITENS_PEDIDOS, CHAMADO: Array.prototype.reduce()
- *  
- * O método reduce() executa uma função reducer (fornecida por você) para cada elemento do array, 
- * resultando num único valor de retorno. 
- * 
- * no nosso caso, retornou a soma de todos os itens-pedidos em totalPrice, conforme a lógica descrita
- * nas linhas 67 e 68.
- * 
- */
-
 
 // POST pedido utilizando await and async
 router.post('/', async (req, res) => {
@@ -191,26 +114,6 @@ router.put('/:id', async (req, res) => {
     res.send(order);
 })
 
-/**
- * DELETAR PEDIDO JUNTO COM OS ITEMS PEDIDOS. EM LARAVEL, PARA REALIZAR ISSO, BASTAVA USAR 'CASCADE'
- * NO 'DELETE METHOD'
- * 
- * PORÉM, REALIZAR ISSO É UM POUCO MAIS DIFÍCIL EM NODE.JS
- * 
- * SOLUÇÃO: 
- * após achar o pedido (order) pelo o id e remover o mesmo,
- * realiza-se um loop em itens-pedidos (order_itens) com o 'map'
- * esse loop busca por todos os itens pedidos, acha-os e deleta-os
- * 
- * Como só estamos armazenado os IDs do itens_pedidos em pedidos, 
- * é possível, então, utilizar findByIdAndRemove(order_item) 
- * 
- * Utilizei dois 'async' neste método, no primeiro, 'async order',
- * espera-se até excluir todos os pedidos (await). Isso ocorre, também,
- * para itens pedidos. Após a exclusão dos ids pelo 'async | awaits', continua-se, então
- * O método deletar pedido, isto é, retorno de mensagens de sucesso ou fracasso. 
- * 
- */
 
 // DELETAR pedido: explicação nas linhas 192 a 209
 router.delete('/:id', (req, res) => {
@@ -233,19 +136,6 @@ router.delete('/:id', (req, res) => {
         })
 })
 
-/**
- * Ao utilizar o método aggregate, é possível AGRUPAR ( isto é, JOIN, utilizando termos de bd relacional)
- * todas as tables (Collections) e os documentos dentro da Collection específica para UMA COLLECTION,
- * Após esse agrupamento, é possível pegar (buscar, utilizando mongoose) uma campo específico,
- * no nosso caso: total_price (valor total).
- * 
- * PORTANTO, podemos pegar o total_price 'AGRUPADO' (JOINED) e utilzar um método do mongoose chamado: sum()
- * este método retornará a soma de todos os valores totais do pedido. Ou seja, retornará o valor total de todas
- * as vendas realizadas na newmodern ecommerce app.
- * 
- * a lógica da soma de todas as vendas se encontra nas linhas 251 a 252. 
- * 
- */
 
 // Pegar o valor total de vendas | pegar o total de vendas diretamente da Colection Orders no MongoDB 
 router.get('/get/totalsales', async (req, res) => {
