@@ -145,7 +145,8 @@ router.put('/:id', async (req, res) => {
         {
             name: req.body.name,
             email: req.body.email,
-            phone: req.body.phone
+            phone: req.body.phone,
+            password: bcrypt.hashSync(req.body.password, 10),
         },
         { new: true }
     );
