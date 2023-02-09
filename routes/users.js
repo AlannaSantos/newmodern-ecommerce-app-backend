@@ -83,7 +83,7 @@ router.post('/login', async (req, res) => {
 })
 
 // Rota para registrar um novo usuário: copiei a rota (/) que será para o admin
-router.post('/register', async (req,res)=>{
+router.post('/register', async (req, res) => {
     let user = new User({
         name: req.body.name,
         email: req.body.email,
@@ -100,8 +100,8 @@ router.post('/register', async (req,res)=>{
     })
     user = await user.save();
 
-    if(!user)
-    return res.status(400).send('O usuário não pode ser criado.')
+    if (!user)
+        return res.status(400).send('O usuário não pode ser criado.')
 
     res.send(user);
 })
@@ -139,28 +139,21 @@ router.delete('/:id', (req, res) => {
         })
 })
 
-// PUT pedido: Atualizar pedido (order)
 router.put('/:id', async (req, res) => {
     const user = await User.findByIdAndUpdate(
-
-        // Atualizaremos apenas o status do produto: de pendente para enviado.  
         req.params.id,
         {
             name: req.body.name,
             email: req.body.email,
             phone: req.body.phone
         },
-        { new: true } // Mostrar os dados novos
-    )
+        { new: true }
+    );
 
-    // Se o pedido não foi encontrado
-    if (!user)
+    if (!user) {
+        return res.status(404).send('User not found');
+    }
 
-        // Retorna 404 não encontrado e passa mensagem ao cliente
-        return res.status(404).send('Não foi possível atualizar os dados.')
-
-    // Se o pedido existe, então: retorna o pedido atualizado
-    res.send(order);
-})
-
+    res.send(user);
+});
 module.exports = router;
