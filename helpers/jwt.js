@@ -57,7 +57,7 @@ function authJwt() {
             { url: /\/api\/v1\/products(.*)/, methods: ['GET', 'OPTIONS'] },
             { url: /\/public\/uploads(.*)/, methods: ['GET', 'OPTIONS'] },
             { url: /\/api\/v1\/orders(.*)/, methods: ['GET', 'POST','OPTIONS'] }, // NÃO É NCESSÁRIO TOKEN PARA FAZER PEDIDO E BUSCAR. PENSAR EM REGRA PARA GET ORDER (SEGURANÇA) POSTERIORMENTE
-            { url: /\/api\/v1\/users(.*)/, methods: ['GET', 'PUT','OPTIONS'] }, 
+            { url: /\/api\/v1\/users(.*)/, methods: ['GET', 'OPTIONS'] }, 
             `${api}/users/login`,
             `${api}/users/register`,
             // `${api}/users/get/count` somente admin deve ter acesso à quantidade de users. coloquei aqui para testes
