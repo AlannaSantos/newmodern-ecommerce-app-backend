@@ -139,4 +139,28 @@ router.delete('/:id', (req, res) => {
         })
 })
 
+// PUT pedido: Atualizar pedido (order)
+router.put('/:id', async (req, res) => {
+    const user = await User.findByIdAndUpdate(
+
+        // Atualizaremos apenas o status do produto: de pendente para enviado.  
+        req.params.id,
+        {
+            name: req.body.name,
+            email: req.body.email,
+            phone: req.body.phone
+        },
+        { new: true } // Mostrar os dados novos
+    )
+
+    // Se o pedido não foi encontrado
+    if (!user)
+
+        // Retorna 404 não encontrado e passa mensagem ao cliente
+        return res.status(404).send('Não foi possível atualizar os dados.')
+
+    // Se o pedido existe, então: retorna o pedido atualizado
+    res.send(order);
+})
+
 module.exports = router;
